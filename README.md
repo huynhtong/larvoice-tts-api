@@ -825,6 +825,29 @@ https://api.larvoice.com/llms-full.md
 
 `llms.txt` là bản index ngắn cho agent discovery. `llms-full.md` là hướng dẫn tích hợp đầy đủ, gồm flow khuyến nghị, endpoint, request mẫu, response mẫu, limits và error shape.
 
+Repo này có MCP server local để user tích hợp Larvoice vào MCP client:
+
+```json
+{
+  "mcpServers": {
+    "larvoice": {
+      "command": "node",
+      "args": ["<repo>/mcp/larvoice-mcp.mjs"],
+      "env": {
+        "LARVOICE_API_KEY": "lv_your_key",
+        "LARVOICE_BASE_URL": "https://api.larvoice.com"
+      }
+    }
+  }
+}
+```
+
+Chạy thử local:
+
+```bash
+LARVOICE_API_KEY=lv_your_key npm run mcp
+```
+
 Nếu xây MCP server hoặc custom tool wrapper cho AI agent, nên map các tool user-facing sau:
 
 | MCP tool gợi ý | Endpoint |

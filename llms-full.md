@@ -455,7 +455,7 @@ Common error codes:
 
 ## MCP Integration Guide
 
-Larvoice can be wrapped as MCP tools for AI agents. Use the user's API key as an environment variable in the MCP server, then call Larvoice with `x-api-key`.
+Larvoice includes a local MCP server in this repo. Use the user's API key as an environment variable in the MCP server, then call Larvoice through MCP tools.
 
 Recommended MCP tools:
 
@@ -476,16 +476,16 @@ Recommended MCP tools:
 | `larvoice_list_jobs` | List jobs. | `GET /v1/tts/jobs` |
 | `larvoice_cancel_job` | Cancel a queued job. | `POST /v1/tts/jobs/:job_id/cancel` |
 
-Suggested MCP config shape for a custom wrapper:
+MCP config shape:
 
 ```json
 {
   "mcpServers": {
     "larvoice": {
       "command": "node",
-      "args": ["/path/to/larvoice-mcp-server.js"],
+      "args": ["<repo>/mcp/larvoice-mcp.mjs"],
       "env": {
-        "LARVOICE_API_KEY": "your_api_key_here",
+        "LARVOICE_API_KEY": "lv_your_key",
         "LARVOICE_BASE_URL": "https://api.larvoice.com"
       }
     }
@@ -493,7 +493,11 @@ Suggested MCP config shape for a custom wrapper:
 }
 ```
 
-Do not assume an official MCP package name unless the user provides one. For now, build wrappers directly against the HTTP API.
+Local run command:
+
+```bash
+LARVOICE_API_KEY=lv_your_key npm run mcp
+```
 
 Suggested tool inputs and outputs:
 
