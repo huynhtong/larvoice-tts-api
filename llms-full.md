@@ -466,6 +466,14 @@ Larvoice provides a published MCP package for user integrations. It works with C
 
 Full user-facing MCP guide: `https://api.larvoice.com/MCP.md`.
 
+Easy login command for users who do not want to edit MCP env config:
+
+```bash
+npx -y @larvoice/mcp login
+```
+
+This opens a local browser page, verifies the API key with Larvoice, and stores it locally for future MCP runs.
+
 Authentication for MCP is environment-based. Put the user's API key in `LARVOICE_API_KEY` in the MCP client config. There is no separate login prompt.
 
 Recommended MCP tools:

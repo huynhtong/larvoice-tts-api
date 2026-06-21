@@ -10,7 +10,32 @@ npx -y @larvoice/mcp
 
 ## Auth
 
-MCP không có màn hình đăng nhập riêng. API key được điền trong phần `env` của MCP config:
+Cách dễ nhất là chạy lệnh login:
+
+```bash
+npx -y @larvoice/mcp login
+```
+
+Lệnh này mở một trang local trong browser để user dán API key. Key được kiểm tra và lưu cục bộ tại:
+
+```text
+~/.larvoice/mcp.json
+```
+
+Sau đó MCP client có thể chạy:
+
+```json
+{
+  "mcpServers": {
+    "larvoice": {
+      "command": "npx",
+      "args": ["-y", "@larvoice/mcp"]
+    }
+  }
+}
+```
+
+Cách nâng cao: điền API key trong phần `env` của MCP config:
 
 ```text
 LARVOICE_API_KEY=lv_your_key

@@ -15,6 +15,7 @@ Primary documentation:
 
 MCP package:
 - Command: npx -y @larvoice/mcp
+- Login wizard: npx -y @larvoice/mcp login
 - Auth env: LARVOICE_API_KEY=<your-api-key>
 - Works with Cursor, Codex, Claude Desktop, Kiro, Antigravity, OpenClaw, Hermes, and other command-based MCP clients.
 

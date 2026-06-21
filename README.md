@@ -881,6 +881,14 @@ Package:
 npx -y @larvoice/mcp
 ```
 
+Login dễ hơn cho user không muốn tự sửa config:
+
+```bash
+npx -y @larvoice/mcp login
+```
+
+Lệnh này mở browser local để user nhập API key, kiểm tra key và lưu cục bộ trên máy user.
+
 Auth dùng biến môi trường trong MCP config:
 
 ```text
