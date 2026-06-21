@@ -1,34 +1,33 @@
 # Larvoice TTS API
 
-Larvoice TTS API giúp tạo giọng nói từ văn bản qua HTTP API. API chạy bất đồng bộ: bạn gửi text để tạo job, sau đó poll trạng thái job cho đến khi có file audio.
+Tạo giọng nói tự nhiên từ văn bản qua HTTP API.
 
-Base URL:
+API chạy bất đồng bộ: gửi text để tạo job, poll trạng thái cho đến khi có audio.
 
 ```text
 https://api.larvoice.com
 ```
 
-## Mục Lục
+## Mục lục
 
 - [Xác thực](#xác-thực)
 - [Nhận API key miễn phí](#nhận-api-key-miễn-phí)
 - [Endpoint](#endpoint)
-- [Playground](#playground)
 - [Quick start](#quick-start)
-- [Thông tin tài khoản](#thông-tin-tài-khoản)
 - [Tạo job TTS](#tạo-job-tts)
 - [Kiểm tra trạng thái job](#kiểm-tra-trạng-thái-job)
 - [Danh sách job](#danh-sách-job)
-- [File output](#file-output)
-- [Tham số request](#tham-số-request)
+- [Thông tin tài khoản](#thông-tin-tài-khoản)
 - [Upload voice mẫu](#upload-voice-mẫu)
-- [Danh sách voice mẫu](#danh-sách-voice-mẫu)
-- [Xóa voice mẫu](#xóa-voice-mẫu)
+- [Quản lý voice](#quản-lý-voice)
+- [Tham số request](#tham-số-request)
+- [File output](#file-output)
 - [Rate limit và quota](#rate-limit-và-quota)
 - [Lỗi thường gặp](#lỗi-thường-gặp)
 - [Chính sách dữ liệu](#chính-sách-dữ-liệu)
+- [Playground](#playground)
 
-## Xác Thực
+## Xác thực
 
 Gửi API key trong header `x-api-key`:
 
@@ -60,48 +59,29 @@ API key đầy đủ chỉ hiển thị khi tạo key. Hãy lưu key ở nơi an
 ## Endpoint
 
 ```http
-GET  /health
-GET  /playground
-GET  /app
-GET  /v1/me
-POST /v1/voices
-GET  /v1/voices
-DELETE /v1/voices/:voice_id
-POST /v1/tts
-GET  /v1/tts/jobs
-GET  /v1/tts/jobs/:job_id
-GET  /ref-audio/:file
-HEAD /ref-audio/:file
-GET  /files/:file?expires=...&signature=...
-HEAD /files/:file?expires=...&signature=...
+GET    /health
+GET    /playground
+GET    /app
+GET    /v1/me
+POST   /v1/tts
+GET    /v1/tts/jobs
+GET    /v1/tts/jobs/:job_id
+POST   /v1/voices
+GET    /v1/voices
+DELETE /v1/voices/:id
+GET    /ref-audio/:file
+HEAD   /ref-audio/:file
+GET    /files/:file?expires=...&signature=...
+HEAD   /files/:file?expires=...&signature=...
 ```
 
-## Playground
-
-Trải nghiệm API trực tiếp tại:
-
-```text
-https://api.larvoice.com/playground
-```
-
-Playground cho phép nhập API key, upload voice mẫu, chọn nhanh giọng demo/text demo, kiểm tra quota, tạo job TTS, poll trạng thái và nghe audio sau khi job hoàn thành.
-
-Giọng demo có sẵn:
-
-- Ngọc Huyền: `https://media.publit.io/file/larvoice/voice-custom/Ngoc-Huyen-v1.mp3`
-- Anh Quân: `https://media.publit.io/file/larvoice/voice-custom/AnhQuan.mp3`
-- Adam: `https://media.publit.io/file/larvoice/voice-custom/Adam.mp3`
-- Vy Anh: `https://media.publit.io/file/larvoice/voice-custom/VyAnh.mp3`
-
-## Quick Start
+## Quick start
 
 ### 1. Kiểm tra service
 
 ```bash
-curl --location 'https://api.larvoice.com/health'
+curl 'https://api.larvoice.com/health'
 ```
-
-Response:
 
 ```json
 {"ok":true}
@@ -109,16 +89,14 @@ Response:
 
 ### 2. Tạo job TTS
 
-Bạn có thể dùng `ref_audio_url` trực tiếp, hoặc dùng `voice_id` của voice đã upload. Nếu gửi cả hai, `ref_audio_url` được ưu tiên.
-
 ```bash
-curl --location 'https://api.larvoice.com/v1/tts' \
-  --header 'Content-Type: application/json' \
-  --header 'x-api-key: <your-api-key>' \
-  --data '{
-    "ref_audio_url": "https://example.com/voice-sample.mp3",
-    "language": "vi",
+curl -X POST 'https://api.larvoice.com/v1/tts' \
+  -H 'Content-Type: application/json' \
+  -H 'x-api-key: <your-api-key>' \
+  -d '{
     "gen_text": "Xin chào, đây là Larvoice TTS API.",
+    "ref_audio_url": "https://media.publit.io/file/larvoice/voice-custom/Ngoc-Huyen-v1.mp3",
+    "language": "vi",
     "return_srt": true,
     "output_format": "wav"
   }'
@@ -137,29 +115,14 @@ Response `202 Accepted`:
 }
 ```
 
-Tái dùng voice đã upload:
+### 3. Poll trạng thái
 
 ```bash
-curl --location 'https://api.larvoice.com/v1/tts' \
-  --header 'Content-Type: application/json' \
-  --header 'x-api-key: <your-api-key>' \
-  --data '{
-    "voice_id": "<voice_id>",
-    "language": "vi",
-    "gen_text": "Xin chào, đây là Larvoice TTS API.",
-    "return_srt": true,
-    "output_format": "wav"
-  }'
+curl 'https://api.larvoice.com/v1/tts/jobs/9f6c2131-0f7c-41e4-90f2-ae3c7f336d00' \
+  -H 'x-api-key: <your-api-key>'
 ```
 
-### 3. Poll job
-
-```bash
-curl --location 'https://api.larvoice.com/v1/tts/jobs/9f6c2131-0f7c-41e4-90f2-ae3c7f336d00' \
-  --header 'x-api-key: <your-api-key>'
-```
-
-Khi job hoàn thành:
+Khi hoàn thành:
 
 ```json
 {
@@ -167,36 +130,131 @@ Khi job hoàn thành:
     "job_id": "9f6c2131-0f7c-41e4-90f2-ae3c7f336d00",
     "status": "completed",
     "character_count": 34,
-    "created_at": "2026-06-20T12:00:00.000Z",
-    "updated_at": "2026-06-20T12:00:10.000Z",
-    "started_at": "2026-06-20T12:00:05.000Z",
-    "completed_at": "2026-06-20T12:00:10.000Z",
     "audio_url": "https://api.larvoice.com/files/tts_20260620_120010_123456.wav?expires=1782043210&signature=...",
     "content_type": "audio/wav",
     "duration_seconds": 2.18,
-    "expires_at": "2026-06-21T12:00:10.000000",
-    "return_srt": true,
     "srt_url": "https://api.larvoice.com/files/tts_20260620_120010_123456_aligned.srt?expires=1782043210&signature=...",
-    "segments": []
+    "segments": [],
+    "expires_at": "2026-06-21T12:00:10.000000",
+    "created_at": "2026-06-20T12:00:00.000Z",
+    "updated_at": "2026-06-20T12:00:10.000Z",
+    "started_at": "2026-06-20T12:00:05.000Z",
+    "completed_at": "2026-06-20T12:00:10.000Z"
   }
 }
 ```
 
-## Thông Tin Tài Khoản
+Khi thất bại:
 
-Endpoint:
+```json
+{
+  "data": {
+    "job_id": "9f6c2131-0f7c-41e4-90f2-ae3c7f336d00",
+    "status": "failed",
+    "character_count": 34,
+    "error": {
+      "code": "provider_failed",
+      "message": "Voice service request failed"
+    },
+    "created_at": "2026-06-20T12:00:00.000Z",
+    "updated_at": "2026-06-20T12:03:00.000Z",
+    "started_at": "2026-06-20T12:02:55.000Z",
+    "completed_at": "2026-06-20T12:03:00.000Z"
+  }
+}
+```
+
+## Tạo job TTS
+
+```http
+POST /v1/tts
+```
+
+Headers:
+
+```http
+Content-Type: application/json
+x-api-key: <your-api-key>
+```
+
+Có hai cách chỉ định giọng mẫu: dùng `ref_audio_url` hoặc `voice_id`.
+
+Dùng `ref_audio_url` (URL giọng mẫu HTTPS):
+
+```json
+{
+  "gen_text": "Nội dung cần tạo giọng nói.",
+  "ref_audio_url": "https://media.publit.io/file/larvoice/voice-custom/Ngoc-Huyen-v1.mp3",
+  "language": "vi",
+  "return_srt": true,
+  "output_format": "wav"
+}
+```
+
+Dùng `voice_id` (voice đã upload qua `POST /v1/voices`):
+
+```json
+{
+  "gen_text": "Nội dung cần tạo giọng nói.",
+  "voice_id": "<voice_id>",
+  "language": "vi",
+  "return_srt": true,
+  "output_format": "wav"
+}
+```
+
+Nếu gửi cả hai, `ref_audio_url` được ưu tiên.
+
+## Kiểm tra trạng thái job
+
+```http
+GET /v1/tts/jobs/:job_id
+```
+
+```bash
+curl 'https://api.larvoice.com/v1/tts/jobs/<job_id>' \
+  -H 'x-api-key: <your-api-key>'
+```
+
+| Status | Ý nghĩa |
+| --- | --- |
+| `queued` | Job đang chờ xử lý. |
+| `processing` | Job đang được tạo audio. |
+| `completed` | Job hoàn thành, response có `audio_url`. |
+| `failed` | Job thất bại, response có `error.code` và `error.message`. |
+
+## Danh sách job
+
+```http
+GET /v1/tts/jobs
+```
+
+```bash
+curl 'https://api.larvoice.com/v1/tts/jobs?limit=20' \
+  -H 'x-api-key: <your-api-key>'
+```
+
+Query params:
+
+| Param | Mô tả |
+| --- | --- |
+| `limit` | Số job mỗi trang. Mặc định `20`, tối đa `100`. |
+| `cursor` | Cursor trang kế tiếp từ response trước. |
+| `status` | Lọc theo `queued`, `processing`, `completed`, `failed`. |
+
+Response có `pagination.next_cursor` nếu còn trang tiếp theo. Thứ tự: mới nhất trước.
+
+## Thông tin tài khoản
 
 ```http
 GET /v1/me
 ```
 
-Dùng endpoint này để kiểm tra quota, số ký tự đã dùng, số ký tự còn lại và hạn dùng API key.
-
-Ví dụ:
+Kiểm tra quota, số ký tự đã dùng, số ký tự còn lại và hạn dùng API key.
 
 ```bash
-curl --location 'https://api.larvoice.com/v1/me' \
-  --header 'x-api-key: <your-api-key>'
+curl 'https://api.larvoice.com/v1/me' \
+  -H 'x-api-key: <your-api-key>'
 ```
 
 Response:
@@ -218,192 +276,52 @@ Response:
 }
 ```
 
-`expires_at: null` nghĩa là API key chưa có ngày hết hạn cố định.
+`expires_at: null` nghĩa là API key không có ngày hết hạn cố định.
 
-## Tạo Job TTS
-
-Endpoint:
-
-```http
-POST /v1/tts
-```
-
-Headers:
-
-```http
-Content-Type: application/json
-x-api-key: <your-api-key>
-```
-
-Body tối thiểu:
-
-```json
-{
-  "ref_audio_url": "https://example.com/voice-sample.mp3",
-  "language": "vi",
-  "gen_text": "Nội dung cần tạo giọng nói."
-}
-```
-
-Body tối thiểu với voice đã upload:
-
-```json
-{
-  "voice_id": "<voice_id>",
-  "language": "vi",
-  "gen_text": "Nội dung cần tạo giọng nói."
-}
-```
-
-Body có SRT:
-
-```json
-{
-  "ref_audio_url": "https://example.com/voice-sample.mp3",
-  "language": "vi",
-  "gen_text": "Nội dung cần tạo giọng nói.",
-  "return_srt": true,
-  "output_format": "wav"
-}
-```
-
-## Kiểm Tra Trạng Thái Job
-
-Endpoint:
-
-```http
-GET /v1/tts/jobs/:job_id
-```
-
-Status có thể là:
-
-| Status | Ý nghĩa |
-| --- | --- |
-| `queued` | Job đang chờ xử lý. |
-| `processing` | Job đang được tạo audio. |
-| `completed` | Job hoàn thành, response có `audio_url`. |
-| `failed` | Job thất bại, response có `error_code` và `error_message`. |
-
-Ví dụ:
-
-```bash
-curl --location 'https://api.larvoice.com/v1/tts/jobs/<job_id>' \
-  --header 'x-api-key: <your-api-key>'
-```
-
-## Danh Sách Job
-
-Endpoint:
-
-```http
-GET /v1/tts/jobs
-```
-
-Ví dụ:
-
-```bash
-curl --location 'https://api.larvoice.com/v1/tts/jobs?limit=20' \
-  --header 'x-api-key: <your-api-key>'
-```
-
-Query params:
-
-| Param | Mô tả |
-| --- | --- |
-| `limit` | Số job mỗi trang. Mặc định `20`, tối đa `100`. |
-| `cursor` | Cursor trang kế tiếp từ response trước. |
-| `status` | Lọc theo `queued`, `processing`, `completed`, `failed`. |
-
-Response có `pagination.next_cursor` nếu còn trang tiếp theo.
-
-## File Output
-
-Khi job `completed`, dùng `audio_url` để tải file audio. Nếu request có `return_srt: true`, response có thêm `srt_url`.
-
-Output URL có dạng:
-
-```text
-https://api.larvoice.com/files/<file>?expires=<unix>&signature=<hmac>
-```
-
-Lưu ý:
-
-- Link tải có thời hạn, tối đa `24` giờ.
-- Không chia sẻ public link nếu audio chứa nội dung riêng tư.
-- Có thể dùng `HEAD` để kiểm tra metadata file trước khi tải.
-- Nếu link hết hạn, API trả `403 Forbidden`.
-
-## Tham Số Request
-
-| Field | Bắt buộc | Kiểu | Mặc định | Mô tả |
-| --- | --- | --- | --- | --- |
-| `post_speed` | Không | number | `1.1` | Tốc độ hậu xử lý, từ `0.5` đến `2`. |
-| `post_pitch` | Không | number | `0` | Chỉnh cao độ, từ `-6` đến `6`. |
-| `post_volume` | Không | number | `0.1` | Tăng/giảm âm lượng, từ `-20` đến `20`. |
-| `language` | Không | string | `vi` | `vi` hoặc `en`. |
-| `gen_text` | Có | string | - | Nội dung cần tạo giọng nói. Tối đa `10000` ký tự mỗi job. |
-| `ref_audio_url` | Có nếu không có `voice_id` | string | - | URL giọng mẫu HTTPS bất kỳ hoặc URL trả về từ `POST /v1/voices`. Larvoice cache sang R2 và dùng tối đa `2.5` giây đầu làm reference. Nếu gửi cùng `voice_id`, trường này được ưu tiên. |
-| `voice_id` | Có nếu không có `ref_audio_url` | string | - | ID voice đã upload qua `POST /v1/voices`. Dùng để tái sử dụng voice mà không cần gửi lại URL. |
-| `return_srt` | Không | boolean | `false` | Trả thêm file SRT và segments. |
-| `output_format` | Không | string | `wav` | `wav` hoặc `mp3`. |
-
-Các field lạ sẽ bị reject. `output_audio=true` không được hỗ trợ trong queued API; hãy dùng `audio_url` sau khi job hoàn thành.
-
-## Upload Voice Mẫu
-
-Endpoint:
+## Upload voice mẫu
 
 ```http
 POST /v1/voices
 ```
 
-Upload file audio để Larvoice cache sang R2 và trả về `ref_audio_url` chuẩn dùng cho `POST /v1/tts`.
-
-Giới hạn voice đã lưu:
-
-- Free user: tối đa `1` voice.
-- Paid user: tối đa `50` voices.
-
-Ví dụ:
+Upload file audio để Larvoice cache và trả về `voice_id` cùng `ref_audio_url` dùng cho `POST /v1/tts`.
 
 ```bash
-curl --location 'https://api.larvoice.com/v1/voices' \
-  --header 'x-api-key: <your-api-key>' \
-  --form 'file=@voice-sample.mp3'
+curl -X POST 'https://api.larvoice.com/v1/voices' \
+  -H 'x-api-key: <your-api-key>' \
+  -F 'file=@voice-sample.mp3'
 ```
 
-Response:
+Response `201 Created`:
 
 ```json
 {
   "data": {
-    "voice_id": "<voice_id>",
+    "voice_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "ref_audio_url": "https://api.larvoice.com/ref-audio/<sha256>.mp3",
     "file_name": "<sha256>.mp3",
     "content_type": "audio/mpeg",
     "size_bytes": 123456,
     "max_reference_seconds": 2.5,
     "voice_count": 1,
-    "max_voices": 1
+    "max_voices": 20
   }
 }
 ```
 
-Nếu vượt giới hạn, API trả `403 voice_limit_exceeded`. Upload lại cùng một file voice đã lưu không tốn thêm slot.
+Larvoice dùng tối đa `2.5` giây đầu của file audio làm reference. File tối đa `25 MB`. Định dạng hỗ trợ: `mp3`, `wav`, `m4a`, `aac`, `ogg`, `webm`.
 
-## Danh Sách Voice Mẫu
+## Quản lý voice
 
-Endpoint:
+### Danh sách voice
 
 ```http
 GET /v1/voices
 ```
 
-Ví dụ:
-
 ```bash
-curl --location 'https://api.larvoice.com/v1/voices' \
-  --header 'x-api-key: <your-api-key>'
+curl 'https://api.larvoice.com/v1/voices' \
+  -H 'x-api-key: <your-api-key>'
 ```
 
 Response:
@@ -412,37 +330,33 @@ Response:
 {
   "data": [
     {
-      "id": "<voice_id>",
-      "ref_audio_id": "<ref_audio_id>",
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "ref_audio_id": "...",
       "ref_audio_url": "https://api.larvoice.com/ref-audio/<sha256>.mp3",
       "file_name": "<sha256>.mp3",
       "content_type": "audio/mpeg",
       "size_bytes": 123456,
       "created_at": "2026-06-20T12:00:00.000Z",
-      "last_used_at": "2026-06-20T12:00:00.000Z",
-      "use_count": 1
+      "last_used_at": "2026-06-20T12:10:00.000Z",
+      "use_count": 5
     }
   ],
   "meta": {
     "voice_count": 1,
-    "max_voices": 1
+    "max_voices": 20
   }
 }
 ```
 
-## Xóa Voice Mẫu
-
-Endpoint:
+### Xóa voice
 
 ```http
-DELETE /v1/voices/:voice_id
+DELETE /v1/voices/:id
 ```
 
-Ví dụ:
-
 ```bash
-curl --request DELETE 'https://api.larvoice.com/v1/voices/<voice_id>' \
-  --header 'x-api-key: <your-api-key>'
+curl -X DELETE 'https://api.larvoice.com/v1/voices/<voice_id>' \
+  -H 'x-api-key: <your-api-key>'
 ```
 
 Response:
@@ -450,22 +364,59 @@ Response:
 ```json
 {
   "data": {
-    "id": "<voice_id>",
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "deleted": true
   }
 }
 ```
 
-Xóa voice sẽ gỡ voice khỏi API key của bạn và giải phóng slot upload. File cache nội bộ có thể vẫn được giữ lại để tránh ảnh hưởng voice dùng chung hoặc request cũ.
+## Tham số request
 
-## Rate Limit Và Quota
+### Field bắt buộc
+
+| Field | Kiểu | Mô tả |
+| --- | --- | --- |
+| `gen_text` | string | Nội dung cần tạo giọng nói. Tối đa `10000` ký tự mỗi job. Quota trừ theo số ký tự. |
+| `ref_audio_url` | string | URL giọng mẫu HTTPS. Bắt buộc nếu không có `voice_id`. |
+| `voice_id` | string | UUID voice đã upload qua `POST /v1/voices`. Bắt buộc nếu không có `ref_audio_url`. |
+
+### Field tùy chọn
+
+| Field | Kiểu | Mặc định | Giới hạn | Mô tả |
+| --- | --- | --- | --- | --- |
+| `language` | string | `vi` | `vi`, `en` | Ngôn ngữ. |
+| `output_format` | string | `wav` | `wav`, `mp3` | Định dạng audio đầu ra. |
+| `return_srt` | boolean | `false` | | Trả thêm file SRT và segments. |
+| `post_speed` | number | `1.1` | `0.5`..`2` | Tốc độ hậu xử lý. |
+| `post_pitch` | number | `0` | `-6`..`6` | Chỉnh cao độ hậu xử lý. |
+| `post_volume` | number | `0.1` | `-20`..`20` | Tăng/giảm âm lượng hậu xử lý. |
+| `speed` | number | `0.8` | `0.5`..`2` | Tốc độ tạo giọng (khác `post_speed`). |
+
+Các field lạ sẽ bị reject `400 validation_error`. `output_audio: true` không được hỗ trợ; dùng `audio_url` sau khi job hoàn thành.
+
+## File output
+
+Khi job `completed`, dùng `audio_url` để tải file audio. Nếu request có `return_srt: true`, response có thêm `srt_url` và `segments`.
+
+URL output có dạng:
+
+```text
+https://api.larvoice.com/files/<file>?expires=<unix>&signature=<hmac>
+```
+
+- Link tải có thời hạn, tối đa `24` giờ.
+- Nếu link hết hạn, API trả `403 Forbidden`.
+- Có thể dùng `HEAD` để kiểm tra metadata file trước khi tải.
+
+## Rate limit và quota
 
 - Mỗi API key có quota ký tự riêng.
 - Mỗi request TTS trừ quota theo số ký tự trong `gen_text`.
-- Nếu job thất bại sau retry, quota được hoàn lại.
-- Rate limit mặc định: `50` request/phút/API key.
+- Nếu job thất bại sau khi hết retry, quota được hoàn lại.
+- Rate limit: `50` request/phút/API key.
+- Job retry tối đa `3` lần. Job `processing` quá `5` phút sẽ được recover hoặc fail.
 
-## Lỗi Thường Gặp
+## Lỗi thường gặp
 
 Error response chuẩn:
 
@@ -490,23 +441,36 @@ Error response chuẩn:
 | `400` | `validation_error` | Body sai hoặc thiếu field. |
 | `401` | `unauthorized` | Thiếu hoặc sai API key. |
 | `402` | `quota_exceeded` | Không đủ quota ký tự. |
-| `403` | `forbidden` | API key không được phép gọi endpoint này. |
-| `404` | `not_found` | Không tìm thấy job hoặc file. |
-| `413` | `payload_too_large` | Body JSON quá lớn. |
+| `403` | `forbidden` | Không được phép gọi endpoint này. |
+| `403` | `voice_limit_exceeded` | Vượt giới hạn số voice upload. |
+| `404` | `not_found` | Không tìm thấy job, voice hoặc file. |
+| `413` | `payload_too_large` | File upload hoặc body JSON quá lớn. |
 | `429` | `rate_limited` | Vượt rate limit. |
 | `502` | `tts_failed` | Không tạo được audio. |
-| `504` | `tts_timeout` | Xử lý quá thời gian. |
+| `504` | `tts_timeout` | Xử lý quá thời gian cho phép. |
 
-## Chính Sách Dữ Liệu
-
-Larvoice TTS API được thiết kế theo nguyên tắc lưu tối thiểu.
+## Chính sách dữ liệu
 
 - Không lưu trữ dài hạn nội dung text khách hàng gửi lên.
-- Dữ liệu request, trạng thái job, audio output và SRT output chỉ tồn tại tối đa `24` giờ theo chính sách vận hành.
-- Sau `24` giờ, link tải hết hạn và dữ liệu job/output được đưa vào luồng dọn dẹp định kỳ.
-- Output chỉ truy cập được bằng signed URL có `expires` và `signature`; không có public file listing.
-- API không trả raw response nội bộ, path máy chủ, model nội bộ, log kỹ thuật hoặc domain nội bộ.
-- Log public tối thiểu, ưu tiên `request_id`, mã lỗi chuẩn, thời gian xử lý và trạng thái; không dùng log để lưu raw text/audio.
-- API key chỉ hiển thị một lần khi được cấp; hệ thống chỉ lưu hash, prefix, quota và trạng thái key.
-- Dữ liệu khách hàng không được bán, chia sẻ cho bên thứ ba không liên quan, hoặc dùng để huấn luyện model.
+- Dữ liệu job, audio output và SRT output chỉ tồn tại tối đa `24` giờ.
+- Output chỉ truy cập được bằng signed URL; không có public file listing.
+- API key chỉ hiển thị một lần khi được cấp; hệ thống chỉ lưu hash.
+- Dữ liệu khách hàng không được bán, chia sẻ cho bên thứ ba, hoặc dùng để huấn luyện model.
 - Khi cần xóa dữ liệu sớm, liên hệ Larvoice kèm `job_id` hoặc API key liên quan.
+
+## Playground
+
+Trải nghiệm API trực tiếp tại:
+
+```text
+https://api.larvoice.com/playground
+```
+
+Giọng demo có sẵn:
+
+| Giọng | Ngôn ngữ | URL |
+| --- | --- | --- |
+| Ngọc Huyền | vi | `https://media.publit.io/file/larvoice/voice-custom/Ngoc-Huyen-v1.mp3` |
+| Anh Quân | vi | `https://media.publit.io/file/larvoice/voice-custom/AnhQuan.mp3` |
+| Adam | en | `https://media.publit.io/file/larvoice/voice-custom/Adam.mp3` |
+| Vy Anh | vi | `https://media.publit.io/file/larvoice/voice-custom/VyAnh.mp3` |
