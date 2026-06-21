@@ -40,6 +40,7 @@ https://api.larvoice.com
 - [Xác thực](#xác-thực)
 - [Nhận API key miễn phí](#nhận-api-key-miễn-phí)
 - [Endpoint](#endpoint)
+- [Postman và OpenAPI](#postman-và-openapi)
 - [Quick start](#quick-start)
 - [Tạo job TTS](#tạo-job-tts)
 - [Nghe thử TTS](#nghe-thử-tts)
@@ -117,6 +118,27 @@ HEAD   /ref-audio/:file
 GET    /files/:file?expires=...&signature=...
 HEAD   /files/:file?expires=...&signature=...
 ```
+
+## Postman và OpenAPI
+
+Import Larvoice API vào Postman bằng OpenAPI URL:
+
+```text
+https://api.larvoice.com/openapi.json
+```
+
+Hướng dẫn Postman:
+
+```text
+https://api.larvoice.com/POSTMAN.md
+```
+
+Sau khi import, set environment variable:
+
+| Variable | Value |
+| --- | --- |
+| `base_url` | `https://api.larvoice.com` |
+| `api_key` | API key Larvoice của bạn |
 
 ## Quick start
 
