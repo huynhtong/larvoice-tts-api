@@ -1,0 +1,42 @@
+# Larvoice TTS API
+
+Larvoice is a Text-to-Speech API for creating Vietnamese and English audio from text, with voice cloning, previews, async jobs, batch jobs, SRT output, usage tracking, and per-account voices.
+
+Base URL: https://api.larvoice.com
+
+Primary documentation:
+- Human docs: https://api.larvoice.com/README.md
+- LLM integration guide: https://api.larvoice.com/llms-full.md
+- Playground: https://api.larvoice.com/playground
+- Mini App: https://api.larvoice.com/app
+
+Authentication:
+- Send user API key with header: x-api-key: <your-api-key>
+- Get a free API key from Telegram bot: https://t.me/larvoice_api_bot
+
+Recommended user flows:
+- Check account: GET /v1/me
+- Check languages: GET /v1/languages
+- Upload a voice: POST /v1/voices
+- Edit voice name/ref_text: PATCH /v1/voices/:id
+- Preview TTS: POST /v1/tts/preview
+- Preview voice: POST /v1/voices/:id/preview
+- Create TTS job: POST /v1/tts
+- Create many TTS jobs: POST /v1/tts/batch
+- Poll job: GET /v1/tts/jobs/:job_id
+- List jobs: GET /v1/tts/jobs
+- Cancel queued job: POST /v1/tts/jobs/:job_id/cancel
+- Check usage: GET /v1/usage
+
+Important limits:
+- TTS job text: up to 10000 characters per job by default.
+- Preview text: up to 500 characters.
+- Batch: up to 50 items.
+- Voice upload file: up to 25 MB.
+- Supported audio upload formats: mp3, wav, m4a, aac, ogg, webm.
+
+Best practice:
+- After uploading a voice, use voice_id instead of ref_audio_url.
+- Poll async jobs until status is completed or failed.
+- Use preview endpoints before creating long jobs.
+- Use batch endpoint for video chapters, course lessons, IVR prompts, and multi-scene content.
