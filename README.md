@@ -802,7 +802,7 @@ Response:
 | `return_srt` | boolean | `false` | | Trả thêm file SRT và segments. |
 | `ref_text` | string | Theo voice đã lưu | Tối đa `2000` ký tự | Nội dung tham chiếu cho voice mẫu. Thường không cần gửi nếu dùng `voice_id`. |
 | `post_speed` | number | `1.0` | `0.5`..`2` | Tốc độ hậu xử lý. |
-| `post_pitch` | number | `0` | `-6`..`6` | Chỉnh cao độ hậu xử lý. |
+| `post_pitch` | number | `1.0` | `-6`..`6` | Chỉnh cao độ hậu xử lý. |
 | `post_volume` | number | `0.1` | `-20`..`20` | Tăng/giảm âm lượng hậu xử lý. |
 | `speed` | number | `0.8` | `0.5`..`2` | Tốc độ tạo giọng (khác `post_speed`). |
 
